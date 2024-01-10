@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,39 +10,25 @@ datasource db {
 }
 
 model Items {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  name        String       @unique
-  createdAt   DateTime     @default(now())
-  updateAt    DateTime     @updatedAt
-  price       Float
-  sale        Boolean      @default(false)
-  avalibility Availibility
-  reviws      Review[]
-  description Description?
-  tags        Tag?         @relation(fields: [tagId], references: [id])
-  tagId       String?      @db.ObjectId
-}
-
-model Description {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
-  content String
-  items   Items  @relation(fields: [itemId], references: [id])
-  itemId  String @unique
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  name         String       @unique
+  price        Float
+  description  String
+  isOnSale     Boolean      @default(false)
+  availability Availibility
+  reviews      Review[]
+  createdAt    DateTime     @default(now())
+  updateAt     DateTime     @updatedAt
+  tags         String[]
 }
 
 model Review {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
   title   String
   content String
   rating  Int
-  items   Items  @relation(fields: [itemId], references: [id])
-  itemId  String
-}
-
-model Tag {
-  id      String  @id @default(auto()) @map("_id") @db.ObjectId
-  content String
-  items   Items[]
+  Items   Items?  @relation(fields: [itemsId], references: [id])
+  itemsId String? @db.ObjectId
 }
 
 enum Availibility {
