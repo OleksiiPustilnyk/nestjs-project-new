@@ -10,20 +10,52 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  name     String?
-  surname  String?
-  email    String  @unique
-  password String?
-  image    String?
+model Items {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String       @unique
+  createdAt   DateTime     @default(now())
+  updateAt    DateTime     @updatedAt
+  price       Float
+  sale        Boolean      @default(false)
+  avalibility Availibility
+  reviws      Review[]
+  description Description?
+  tags        Tag?         @relation(fields: [tagId], references: [id])
+  tagId       String?      @db.ObjectId
 }
 
-model Product {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  image       String
-  title       String
-  description String
-  price       Float
-  category    String
+model Description {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  content String
+  items   Items  @relation(fields: [itemId], references: [id])
+  itemId  String @unique
 }
+
+model Review {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  title   String
+  content String
+  rating  Int
+  items   Items  @relation(fields: [itemId], references: [id])
+  itemId  String
+}
+
+model Tag {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  content String
+  items   Items[]
+}
+
+enum Availibility {
+  IN_STORE
+  ONLINE
+}
+
+// model User {
+//   id       String  @id @default(auto()) @map("_id") @db.ObjectId
+//   name     String?
+//   surname  String?
+//   email    String  @unique
+//   password String?
+//   image    String?
+// }
