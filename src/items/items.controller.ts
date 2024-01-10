@@ -9,13 +9,14 @@ import {
 } from '@nestjs/common'
 import { ItemsService } from './items.service'
 import { Prisma } from '@prisma/client'
+import { CreateItemDto } from './dto/create-item.dto'
 
 @Controller('items')
 export class ItemsController {
     constructor(private readonly itemsService: ItemsService) {}
 
     @Post()
-    create(@Body() createItemDto: Prisma.ItemsCreateInput) {
+    create(@Body() createItemDto: CreateItemDto) {
         return this.itemsService.create(createItemDto)
     }
 
