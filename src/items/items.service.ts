@@ -1,39 +1,46 @@
-import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { Injectable } from '@nestjs/common'
+import { CreateItemDto } from './dto/create-item.dto'
 import { DatabaseService } from 'src/database/database.service'
 
 @Injectable()
 export class ItemsService {
-    constructor(private readonly databaseServise: DatabaseService) {}
-    async create(createItemDto: Prisma.ItemsCreateInput) {
-        return this.databaseServise.items.create({
+    constructor(private readonly databaseService: DatabaseService) {}
+    async create(createItemDto: CreateItemDto) {
+        const { tags, reviews, ...item } = createItemDto
+
+        return this.databaseService.items.create({
             data: {
-                name: createItemDto.name,
-                price: createItemDto.price,
-                avalibility: createItemDto.avalibility,
-                description: {
-                    create: {
-                        content: createItemDto.description.content,
+                ...item,
+                ...(tags && { tags: tags }),
+                ...(reviews && {
+                    reviews: {
+                        createMany: {
+                            data: reviews,
+                        },
                     },
-                },
+                }),
             },
         })
     }
 
     async findAll() {
-        return this.databaseServise.items.findMany({})
+        return this.databaseService.items.findMany({
+            include: { reviews: true },
+        })
     }
 
     async findOne(id: string) {
-        return this.databaseServise.items.findUnique({
+        return this.databaseService.items.findUnique({
             where: {
                 id,
             },
+            include: { reviews: true },
         })
     }
 
     async update(id: string, updateItemDto: Prisma.ItemsUpdateInput) {
-        return this.databaseServise.items.update({
+        return this.databaseService.items.update({
             where: {
                 id,
             },
@@ -42,7 +49,7 @@ export class ItemsService {
     }
 
     async remove(id: string) {
-        return this.databaseServise.items.delete({
+        return this.databaseService.items.delete({
             where: { id },
         })
     }
