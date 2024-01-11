@@ -8,30 +8,38 @@ export class UsersService {
     constructor(private databaseService: DatabaseService) {}
 
     create(createUserDto: CreateUserDto) {
+        const { address, ...user } = createUserDto
         return this.databaseService.user.create({
             data: {
-                ...createUserDto,
-                address: {
-                    createMany: {
-                        data: createUserDto.address,
+                ...user,
+                ...(address && {
+                    address: {
+                        createMany: { data: [] },
                     },
-                },
+                }),
             },
         })
     }
 
-    findOne(id: string) {
+    findById(id: string) {
         return this.databaseService.user.findUnique({
             where: { id },
             include: { address: true },
         })
     }
 
+    finaByEmail(email: string) {
+        return this.databaseService.user.findUnique({
+            where: { email },
+            include: { address: true },
+        })
+    }
+
     update(id: string, updateUserDto: UpdateUserDto) {
-        const existingEntry = this.findOne(id)
-        if (!existingEntry) {
-            throw new NotFoundException()
-        }
+        // const () = this.findById(id)
+        // if (!existingEntry) {
+        //     throw new NotFoundException()
+        // }
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { address, ...data } = updateUserDto
         return this.databaseService.$transaction(async tx => {
@@ -56,10 +64,10 @@ export class UsersService {
     }
 
     remove(id: string) {
-        const existingEntry = this.findOne(id)
-        if (!existingEntry) {
-            throw new NotFoundException()
-        }
+        // const existingEntry = this.findById(id)
+        // if (!existingEntry) {
+        //     throw new NotFoundException()
+        // }
         return this.databaseService.user.delete({ where: { id } })
     }
 }

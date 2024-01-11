@@ -10,8 +10,11 @@ import {
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import isValidObjectId from '../utils/isValidObjectId'
+import { SetDatabaseName } from 'src/decorators/set-database.decorator'
 
 @Controller('users')
+@SetDatabaseName('user')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
@@ -22,7 +25,11 @@ export class UsersController {
 
     @Get(':id')
     findOne(@Param('id') id: string) {
-        return this.usersService.findOne(id)
+        if (isValidObjectId(id)) {
+            return this.usersService.findById(id)
+        } else {
+            return this.usersService.finaByEmail(id)
+        }
     }
 
     @Patch(':id')
