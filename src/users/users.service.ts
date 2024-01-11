@@ -1,26 +1,41 @@
 import { Injectable } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { DatabaseService } from 'src/database/database.service'
 
 @Injectable()
 export class UsersService {
+    constructor(private databaseService: DatabaseService) {}
+
     create(createUserDto: CreateUserDto) {
-        return 'This action adds a new user'
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, ...data } = createUserDto
+        return this.databaseService.user.create({
+            data: {
+                ...data,
+                address: {
+                    create: [],
+                },
+            },
+        })
     }
 
-    findAll() {
-        return `This action returns all users`
+    findOne(id: string) {
+        return this.databaseService.user.findUnique({ where: { id } })
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} user`
+    update(id: string, updateUserDto: Partial<UpdateUserDto>) {
+        // eslint-disable-next-line
+        const { address, ...data } = updateUserDto
+        return this.databaseService.user.update({
+            where: { id },
+            data: {
+                ...data,
+            },
+        })
     }
 
-    update(id: number, updateUserDto: UpdateUserDto) {
-        return `This action updates a #${id} user`
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} user`
+    remove(id: string) {
+        return this.databaseService.user.delete({ where: { id } })
     }
 }
