@@ -28,7 +28,7 @@ export class UsersController {
         if (isValidObjectId(id)) {
             return this.usersService.findById(id)
         } else {
-            return this.usersService.finaByEmail(id)
+            return this.usersService.findByEmail(id)
         }
     }
 
