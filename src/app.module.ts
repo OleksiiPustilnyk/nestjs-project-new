@@ -4,7 +4,7 @@ import { AppService } from './app.service'
 
 import { ItemsModule } from './items/items.module'
 import { DatabaseModule } from './database/database.module'
-import { AddressModule } from './address/address.module'
+// import { AddressModule } from './address/address.module'
 import { UsersModule } from './users/users.module'
 import { APP_PIPE } from '@nestjs/core'
 import { ZodValidationPipe } from 'nestjs-zod'
@@ -15,7 +15,7 @@ import { TokenModule } from './token/token.module'
     imports: [
         DatabaseModule,
         ItemsModule,
-        AddressModule,
+        // AddressModule,
         UsersModule,
         AuthModule,
         TokenModule,

@@ -8,15 +8,15 @@ export class UsersService {
     constructor(private databaseService: DatabaseService) {}
 
     create(createUserDto: CreateUserDto) {
-        const { address, ...user } = createUserDto
+        const { ...user } = createUserDto
         return this.databaseService.user.create({
             data: {
                 ...user,
-                ...(address && {
-                    address: {
-                        createMany: { data: [] },
-                    },
-                }),
+                // ...(address && {
+                //     address: {
+                //         createMany: { data: [] },
+                //     },
+                // }),
             },
         })
     }
@@ -24,26 +24,26 @@ export class UsersService {
     findById(id: string) {
         return this.databaseService.user.findUnique({
             where: { id },
-            include: { address: true },
+            // include: { address: true },
         })
     }
 
     findByEmail(email: string) {
         return this.databaseService.user.findUnique({
             where: { email },
-            include: { address: true },
+            // include: { address: true },
         })
     }
 
     update(id: string, updateUserDto: UpdateUserDto) {
-        const { address, ...data } = updateUserDto
+        const { ...data } = updateUserDto
         return this.databaseService.$transaction(async tx => {
             const pendingUpdates: Promise<any>[] = []
-            for (const a of address || []) {
-                pendingUpdates.push(
-                    tx.address.update({ where: { id: a.id }, data: a }),
-                )
-            }
+            // for (const a of address || []) {
+            //     pendingUpdates.push(
+            //         tx.address.update({ where: { id: a.id }, data: a }),
+            //     )
+            // }
 
             await Promise.all(pendingUpdates)
 
