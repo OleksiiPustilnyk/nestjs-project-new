@@ -13,7 +13,10 @@ model Items {
   id           String       @id @default(auto()) @map("_id") @db.ObjectId
   name         String       @unique
   price        Float
+  color        String
+  category     String
   description  String
+  img          String
   isOnSale     Boolean      @default(false)
   availability Availibility
   reviews      Review[]
