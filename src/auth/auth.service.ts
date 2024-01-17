@@ -1,70 +1,72 @@
-import * as bcrypt from 'bcrypt'
-import {
-    ConflictException,
-    Injectable,
-    UnauthorizedException,
-} from '@nestjs/common'
-
+import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { SignInDto } from './dto/auth.dto'
+import { UsersService } from '../users/users.service'
+import { compare } from 'bcrypt'
 import { JwtService } from '@nestjs/jwt'
-import { UsersService } from 'src/users/users.service'
-import { AuthDto } from './dto/create-auth.dto'
+
+const EXPIRE_TIME = 20 * 1000
 
 @Injectable()
 export class AuthService {
-    tokenService: any
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
     ) {}
 
-    async signIn(signInDto: AuthDto) {
-        const signInUser = await this.usersService.findByEmail(signInDto.email)
-
-        if (!signInUser) {
-            throw new UnauthorizedException()
+    async signin(dto: SignInDto) {
+        const user = await this.validateUser(dto)
+        const payload = {
+            email: user.email,
+            sub: {
+                name: user.name,
+            },
         }
 
-        const isSamePassword = await bcrypt.compare(
-            signInDto.password,
-            signInUser.password ?? '',
-        )
-
-        if (!isSamePassword) {
-            throw new UnauthorizedException()
+        return {
+            user,
+            backendTokens: {
+                accessToken: await this.jwtService.signAsync(payload, {
+                    expiresIn: '20s',
+                    secret: process.env.jwtSecretKey,
+                }),
+                refreshToken: await this.jwtService.signAsync(payload, {
+                    expiresIn: '7d',
+                    secret: process.env.jwtRefreshTokenKey,
+                }),
+                expiresIn: new Date().setTime(
+                    new Date().getTime() + EXPIRE_TIME,
+                ),
+            },
         }
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...user } = signInDto
-
-        const tokens = await this.tokenService.generateTokens(signInDto)
-
-        return Object.assign(user, tokens)
     }
 
-    async register(registerDto: AuthDto) {
-        const existingUser = await this.usersService.findByEmail(
-            registerDto.email,
-        )
+    async validateUser(dto: SignInDto) {
+        const user = await this.usersService.findByEmail(dto.email)
 
-        if (existingUser) {
-            throw new ConflictException()
+        if (user && (await compare(dto.password, user.password))) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { password, ...result } = user
+            return result
+        }
+        throw new UnauthorizedException()
+    }
+
+    async refreshToken(user: any) {
+        const payload = {
+            email: user.email,
+            sub: user.sub,
         }
 
-        const salt = await bcrypt.genSalt()
-        const hashedPassword = await bcrypt.hash(registerDto.password, salt)
-
-        const createdUser = await this.usersService.create({
-            email: registerDto.email,
-            password: hashedPassword,
-        })
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...user } = createdUser
-        const tokens = await this.tokenService.generateTokens({
-            id: user.id,
-            email: user.email,
-        })
-
-        return Object.assign(user, tokens)
+        return {
+            accessToken: await this.jwtService.signAsync(payload, {
+                expiresIn: '20s',
+                secret: process.env.jwtSecretKey,
+            }),
+            refreshToken: await this.jwtService.signAsync(payload, {
+                expiresIn: '7d',
+                secret: process.env.jwtRefreshTokenKey,
+            }),
+            expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
+        }
     }
 }

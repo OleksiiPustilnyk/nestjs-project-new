@@ -1,7 +1,7 @@
-import { createZodDto } from 'nestjs-zod'
+// import { createZodDto } from 'nestjs-zod'
 
-import { UserSchema } from '../entities/user.entity'
+// import { UserSchema } from '../entities/user.entity'
 
-export class CreateUserDto extends createZodDto(
-    UserSchema.omit({ id: true }).partial().required({ email: true }),
-) {}
+// export class CreateUserDto extends createZodDto(
+//     UserSchema.omit({ id: true }).partial().required({ email: true }),
+// ) {}
