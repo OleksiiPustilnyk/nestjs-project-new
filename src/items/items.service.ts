@@ -54,3 +54,19 @@ export class ItemsService {
         })
     }
 }
+
+// import { Injectable } from '@nestjs/common';
+// import { Prisma } from '@prisma/client';
+// import { DatabaseService } from 'src/database/database.service';
+
+// @Injectable()
+// export class ItemsService {
+//   constructor(private readonly databaseService: DatabaseService) {}
+
+//   async findOne(id: string) {
+//     return this.databaseService.items.findUnique({
+//       where: { id },
+//       include: { reviews: true },
+//     });
+//   }
+// }

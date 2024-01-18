@@ -2,6 +2,9 @@ export class CreateItemDto {
     name: string
     description: string
     price: number
+    color: string
+    category: string
+    img: string
     isOnSale: boolean
     tags?: string[]
     reviews?: CreateReviewDto

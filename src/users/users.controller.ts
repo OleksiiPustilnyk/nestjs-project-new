@@ -1,42 +1,34 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-} from '@nestjs/common'
+import { Controller, Get, Param, UseGuards } from '@nestjs/common'
 import { UsersService } from './users.service'
-import { CreateUserDto } from './dto/create-user.dto'
-import { UpdateUserDto } from './dto/update-user.dto'
+// import { CreateUserDto } from './dto/create-user.dto'
+// import { UpdateUserDto } from './dto/update-user.dto'
+// import isValidObjectId from '../utils/isValidObjectId'
+import { JwtGuard } from 'src/auth/guard/jwt.guard'
+// import { SetDatabaseName } from 'src/decorators/set-database.decorator'
 
-@Controller('users')
+@Controller('user')
+// @SetDatabaseName('user')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Post()
-    create(@Body() createUserDto: CreateUserDto) {
-        return this.usersService.create(createUserDto)
-    }
+    // @Post()
+    // create(@Body() createUserDto: CreateUserDto) {
+    //     return this.usersService.create(createUserDto)
+    // }
 
-    @Get()
-    findAll() {
-        return this.usersService.findAll()
-    }
-
+    @UseGuards(JwtGuard)
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.usersService.findOne(+id)
+    async getUserProfile(@Param('id') id) {
+        return await this.usersService.findById(id)
     }
 
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-        return this.usersService.update(+id, updateUserDto)
-    }
+    // @Patch(':id')
+    // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    //     return this.usersService.update(id, updateUserDto)
+    // }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.usersService.remove(+id)
-    }
+    // @Delete(':id')
+    // remove(@Param('id') id: string) {
+    //     return this.usersService.remove(id)
+    // }
 }
