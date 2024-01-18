@@ -1,5 +1,5 @@
-import { createZodDto } from 'nestjs-zod'
+// import { createZodDto } from 'nestjs-zod'
 
-import { AuthSchema } from '../entities/auth.entity'
+// import { AuthSchema } from '../entities/auth.entity'
 
-export class AuthDto extends createZodDto(AuthSchema) {}
+// export class AuthDto extends createZodDto(AuthSchema) {}

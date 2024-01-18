@@ -14,33 +14,39 @@ export class AuthService {
     ) {}
 
     async signin(dto: SignInDto) {
-        const user = await this.validateUser(dto)
-        const payload = {
-            email: user.email,
-            sub: {
-                name: user.name,
-            },
-        }
+        try {
+            const user = await this.validateUser(dto)
+            const payload = {
+                email: user.email,
+                sub: {
+                    name: user.name,
+                },
+            }
 
-        return {
-            user,
-            backendTokens: {
-                accessToken: await this.jwtService.signAsync(payload, {
-                    expiresIn: '20s',
-                    secret: process.env.jwtSecretKey,
-                }),
-                refreshToken: await this.jwtService.signAsync(payload, {
-                    expiresIn: '7d',
-                    secret: process.env.jwtRefreshTokenKey,
-                }),
-                expiresIn: new Date().setTime(
-                    new Date().getTime() + EXPIRE_TIME,
-                ),
-            },
+            return {
+                user,
+                backendTokens: {
+                    accessToken: await this.jwtService.signAsync(payload, {
+                        expiresIn: '24h',
+                        secret: process.env.jwtSecretKey,
+                    }),
+                    refreshToken: await this.jwtService.signAsync(payload, {
+                        expiresIn: '7d',
+                        secret: process.env.jwtRefreshTokenKey,
+                    }),
+                    expiresIn: new Date().setTime(
+                        new Date().getTime() + EXPIRE_TIME,
+                    ),
+                },
+            }
+        } catch (error) {
+            console.error('Signin Error:', error)
+            throw new UnauthorizedException('Invalid credentials')
         }
     }
 
     async validateUser(dto: SignInDto) {
+        console.log(dto)
         const user = await this.usersService.findByEmail(dto.email)
 
         if (user && (await compare(dto.password, user.password))) {
@@ -56,17 +62,23 @@ export class AuthService {
             email: user.email,
             sub: user.sub,
         }
-
-        return {
-            accessToken: await this.jwtService.signAsync(payload, {
-                expiresIn: '20s',
-                secret: process.env.jwtSecretKey,
-            }),
-            refreshToken: await this.jwtService.signAsync(payload, {
-                expiresIn: '7d',
-                secret: process.env.jwtRefreshTokenKey,
-            }),
-            expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
+        try {
+            return {
+                accessToken: await this.jwtService.signAsync(payload, {
+                    expiresIn: '24h',
+                    secret: process.env.jwtSecretKey,
+                }),
+                refreshToken: await this.jwtService.signAsync(payload, {
+                    expiresIn: '7d',
+                    secret: process.env.jwtRefreshTokenKey,
+                }),
+                expiresIn: new Date().setTime(
+                    new Date().getTime() + EXPIRE_TIME,
+                ),
+            }
+        } catch (error) {
+            console.error('Refresh Token Error:', error)
+            throw new UnauthorizedException('Invalid refresh token')
         }
     }
 }

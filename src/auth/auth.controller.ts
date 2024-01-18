@@ -13,8 +13,8 @@ import { RefreshJwtGuard } from './guard/refresh.guard'
 // @IgnoreExistence()
 export class AuthController {
     constructor(
-        private authService: AuthService,
         private usersService: UsersService,
+        private authService: AuthService,
     ) {}
 
     // @HttpCode(HttpStatus.OK)
@@ -25,7 +25,13 @@ export class AuthController {
     }
     @Post('signin')
     async signin(@Body() dto: SignInDto) {
-        return this.authService.signin(dto)
+        try {
+            console.log(dto)
+            return this.authService.signin(dto)
+        } catch (error) {
+            console.error(error) // Логирование ошибки
+            throw error // Пробрасывание ошибки, чтобы ее можно было обработать в клиентском коде
+        }
     }
 
     @UseGuards(RefreshJwtGuard)

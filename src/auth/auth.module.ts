@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma.service'
 
 @Module({
     // imports: [UsersModule, TokenModule],
-    providers: [AuthService, UsersService, PrismaService, JwtService],
     controllers: [AuthController],
+    providers: [AuthService, UsersService, PrismaService, JwtService],
 })
 export class AuthModule {}
